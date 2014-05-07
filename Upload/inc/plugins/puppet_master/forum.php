@@ -227,13 +227,14 @@ function puppet_master_mod_tools()
  */
 function puppet_master_initialize()
 {
-	global $mybb, $plugins;
+	global $mybb, $plugins, $templatelist;
 
 	if(!$mybb->settings['puppet_master_on'])
 	{
 		return;
 	}
 
+	$do_templates = true;
 	switch(THIS_SCRIPT)
 	{
 		case 'private.php':
@@ -261,7 +262,12 @@ function puppet_master_initialize()
 			$plugins->add_hook("moderation_start", "puppet_master_mod_tools");
 			break;
 		default:
-			return;
+			$do_templates = false;
+	}
+
+	if($do_templates)
+	{
+		$templatelist .= ',puppetmaster_puppet_option,puppetmaster_puppet_select,puppetmaster_post_unapproved,puppetmaster_all_puppet_options,puppetmaster_puppet_options_showthread,puppetmaster_puppet_options';
 	}
 
 	if(defined('PM_FAKE_IP'))
