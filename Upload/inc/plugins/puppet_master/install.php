@@ -147,6 +147,14 @@ function puppet_master_activate()
 	find_replace_templatesets('showthread_moderationoptions', "#" . preg_quote('</form>') . "#i", '{$puppet_list_box}</form>');
 	find_replace_templatesets('private_send', "#</table>(.*?)</form>#is", '{$puppet_options}</table>$1</form>');
 
+	// if we just upgraded . . .
+	$old_version = puppet_master_get_cache_version();
+	$info = puppet_master_info();
+	if(version_compare($old_version, $info['version'], '<'))
+	{
+		puppet_master_install();
+	}
+
 	puppet_master_set_cache_version();
 }
 
