@@ -18,7 +18,7 @@ puppet_master_initialize();
  */
 function puppet_master_insert_options()
 {
-	global $mybb;
+	global $mybb, $is_selected;
 
 	// if the user is a puppet master
 	if(!$mybb->user['puppet_master'])
@@ -52,6 +52,11 @@ function puppet_master_insert_options()
 	$puppets = '';
 	while($puppet = $db->fetch_array($query))
 	{
+		$is_selected = '';
+		if($puppet['uid'] == $mybb->input['which_puppet'])
+		{
+			$is_selected = ' selected';
+		}
 		eval("\$puppets .= \"" . $templates->get('puppetmaster_puppet_option') . "\";");
 	}
 
