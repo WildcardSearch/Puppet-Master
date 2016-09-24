@@ -99,7 +99,7 @@ function puppet_master_insert_options()
  */
 function puppet_master_cloak()
 {
-	global $mybb, $db, $thread;
+	global $mybb, $db, $thread, $uid, $username;
 
 	// if the user opted to post as a puppet account . . .
 	if(!$mybb->input['which_puppet'] || $mybb->input['which_puppet'] == $mybb->user['uid'])
@@ -110,6 +110,14 @@ function puppet_master_cloak()
 	if(THIS_SCRIPT == 'private.php')
 	{
 		$fake_location = "/private.php";
+	}
+	elseif((THIS_SCRIPT == 'newreply.php' || THIS_SCRIPT == 'newthread.php') && $mybb->input['previewpost'])
+	{
+		// use the puppet uid instead of their real uid
+		$uid = (int) $mybb->input['which_puppet'];
+		$mybb->user = get_user($uid);
+		$username = $mybb->user['username'];
+		return;
 	}
 	else
 	{
@@ -246,12 +254,30 @@ function puppet_master_initialize()
 			break;
 		case 'newreply.php':
 			$plugins->add_hook("newreply_start", "puppet_master_insert_options");
-			$plugins->add_hook("newreply_do_newreply_start", "puppet_master_cloak");
+
+			if($mybb->input['previewpost'])
+			{
+				$plugins->add_hook("newreply_start", "puppet_master_cloak");
+			}
+			else
+			{
+				$plugins->add_hook("newreply_do_newreply_start", "puppet_master_cloak");
+			}
+
 			$plugins->add_hook("newreply_do_newreply_end", "puppet_master_hide");
 			break;
 		case 'newthread.php':
 			$plugins->add_hook("newthread_start", "puppet_master_insert_options");
-			$plugins->add_hook("newthread_do_newthread_start", "puppet_master_cloak");
+
+			if($mybb->input['previewpost'])
+			{
+				$plugins->add_hook("newthread_start", "puppet_master_cloak");
+			}
+			else
+			{
+				$plugins->add_hook("newthread_do_newthread_start", "puppet_master_cloak");
+			}
+
 			$plugins->add_hook("newthread_do_newthread_end", "puppet_master_hide");
 			break;
 		case 'editpost.php':
