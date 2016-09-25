@@ -188,23 +188,9 @@ function puppet_master_hide()
 		return;
 	}
 
-	// create an update array
-	$unapproved = array();
-
-	// decide whether to update a post or a thread . . .
-	$unapproved['visible'] = 0;
-	if(THIS_SCRIPT == 'newreply.php')
-	{
-		$unapproved['ipaddress'] = PM_FAKE_IP;
-		$db->update_query('posts', $unapproved, "pid='{$pid}'", 1);
-	}
-	elseif(THIS_SCRIPT == 'newthread.php')
-	{
-		$db->update_query('threads', $unapproved, "tid='{$tid}'");
-
-		$fake_ip['ipaddress'] = PM_FAKE_IP;
-		$db->update_query('posts', $fake_ip, "pid='{$thread_info['pid']}'");
-	}
+	require_once 'inc/class_moderation.php';
+	$mod = new Moderation;
+	$mod->unapprove_posts(array($pid));
 }
 
 /*
