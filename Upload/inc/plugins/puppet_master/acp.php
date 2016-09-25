@@ -74,20 +74,28 @@ function puppet_master_admin_main()
 		if($mybb->input['mode'] == 'add')
 		{
 			// valid info?
-			if(!isset($mybb->input['uid']) || !$mybb->input['uid'])
+			if(!isset($mybb->input['username']) || !$mybb->input['username'])
 			{
-				flash_message($lang->puppet_master_add_error_bad_uid, 'error');
+				flash_message($lang->puppet_master_add_error_bad_username, 'error');
+				admin_redirect($html->url());
+			}
+
+			$username = $db->escape_string(strtolower($mybb->input['username']));
+			$query = $db->simple_select('users', '*', "username='{$username}'");
+			if($db->num_rows($query) == 0)
+			{
+				flash_message($lang->puppet_master_add_error_bad_username, 'error');
 				admin_redirect($html->url());
 			}
 
 			// get some info about the proposed pm
-			$uid = (int) $mybb->input['uid'];
-			$pm_user = get_user($uid);
+			$pm_user = $db->fetch_array($query);
+			$uid = (int) $pm_user['uid'];
 
 			// if this user doesn't exist we can't very well make them a pm
 			if($pm_user['uid'] != $uid)
 			{
-				flash_message($lang->puppet_master_add_error_bad_uid, 'error');
+				flash_message($lang->puppet_master_add_error_bad_username, 'error');
 				admin_redirect($html->url());
 			}
 
@@ -170,9 +178,18 @@ function puppet_master_admin_main()
 	// add puppet master form
 	$form = new Form($html->url(array("action" => 'main', "mode" => 'add')), "post");
 	$form_container = new FormContainer($lang->puppet_master_add_a_pm);
-	$form_container->output_row($lang->puppet_master_pm_uid, '', $form->generate_text_box('uid'));
+	$form_container->output_row($lang->puppet_master_pm_username, '', $form->generate_text_box('username', '', array('id' => 'username')));
 	$form_container->output_row('', '', $form->generate_check_box('post_hidden', 1, $lang->puppet_master_post_unapproved, array("checked" => false)));
 	$form_container->end();
+	
+	// Autocompletion for usernames
+	echo '
+	<script type="text/javascript" src="../jscripts/autocomplete.js?ver=140"></script>
+	<script type="text/javascript">
+	<!--
+		new autoComplete("username", "../xmlhttp.php?action=get_users", {valueSpan: "username"});
+	// -->
+	</script>';
 
 	// finish form and page
 	$buttons[] = $form->generate_submit_button($lang->puppet_master_add, array('name' => 'add_puppet_master_submit'));
