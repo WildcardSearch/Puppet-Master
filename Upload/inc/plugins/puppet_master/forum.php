@@ -246,7 +246,7 @@ function puppet_master_initialize()
 		case 'newreply.php':
 			$plugins->add_hook("newreply_start", "puppet_master_insert_options");
 
-			if($mybb->input['previewpost'])
+			if($mybb->input['previewpost'] && !$mybb->input['ajax'])
 			{
 				$plugins->add_hook("newreply_start", "puppet_master_cloak");
 			}
