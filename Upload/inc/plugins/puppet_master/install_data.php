@@ -60,7 +60,7 @@ $templates = array(
 		),
 		"templates" => array(
 			"puppetmaster_puppet_option" => <<<EOF
-<option value="{\$puppet['uid']}">{\$puppet['username']}</option>
+<option value="{\$puppet['uid']}"{\$is_selected}>{\$puppet['username']}</option>
 EOF
 			,
 			"puppetmaster_puppet_select" => <<<EOF
