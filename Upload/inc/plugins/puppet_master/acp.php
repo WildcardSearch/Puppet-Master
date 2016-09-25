@@ -74,20 +74,28 @@ function puppet_master_admin_main()
 		if($mybb->input['mode'] == 'add')
 		{
 			// valid info?
-			if(!isset($mybb->input['uid']) || !$mybb->input['uid'])
+			if(!isset($mybb->input['username']) || !$mybb->input['username'])
 			{
-				flash_message($lang->puppet_master_add_error_bad_uid, 'error');
+				flash_message($lang->puppet_master_add_error_bad_username, 'error');
+				admin_redirect($html->url());
+			}
+
+			$username = $db->escape_string(strtolower($mybb->input['username']));
+			$query = $db->simple_select('users', '*', "username='{$username}'");
+			if($db->num_rows($query) == 0)
+			{
+				flash_message($lang->puppet_master_add_error_bad_username, 'error');
 				admin_redirect($html->url());
 			}
 
 			// get some info about the proposed pm
-			$uid = (int) $mybb->input['uid'];
-			$pm_user = get_user($uid);
+			$pm_user = $db->fetch_array($query);
+			$uid = (int) $pm_user['uid'];
 
 			// if this user doesn't exist we can't very well make them a pm
 			if($pm_user['uid'] != $uid)
 			{
-				flash_message($lang->puppet_master_add_error_bad_uid, 'error');
+				flash_message($lang->puppet_master_add_error_bad_username, 'error');
 				admin_redirect($html->url());
 			}
 
@@ -170,9 +178,18 @@ function puppet_master_admin_main()
 	// add puppet master form
 	$form = new Form($html->url(array("action" => 'main', "mode" => 'add')), "post");
 	$form_container = new FormContainer($lang->puppet_master_add_a_pm);
-	$form_container->output_row($lang->puppet_master_pm_uid, '', $form->generate_text_box('uid'));
+	$form_container->output_row($lang->puppet_master_pm_username, '', $form->generate_text_box('username', '', array('id' => 'username')));
 	$form_container->output_row('', '', $form->generate_check_box('post_hidden', 1, $lang->puppet_master_post_unapproved, array("checked" => false)));
 	$form_container->end();
+	
+	// Autocompletion for usernames
+	echo '
+	<script type="text/javascript" src="../jscripts/autocomplete.js?ver=140"></script>
+	<script type="text/javascript">
+	<!--
+		new autoComplete("username", "../xmlhttp.php?action=get_users", {valueSpan: "username"});
+	// -->
+	</script>';
 
 	// finish form and page
 	$buttons[] = $form->generate_submit_button($lang->puppet_master_add, array('name' => 'add_puppet_master_submit'));
@@ -200,55 +217,63 @@ function puppet_master_admin_edit()
 		if($mybb->input['mode'] == 'add')
 		{
 			// valid info?
-			if(isset($mybb->input['uid']) && $mybb->input['uid'])
+			if(!isset($mybb->input['username']) || !$mybb->input['username'])
 			{
-				$uid = (int) $mybb->input['uid'];
-				$ownerid = (int) $mybb->input['ownerid'];
-				$puppet_user = get_user($uid);
+				flash_message($lang->puppet_master_add_puppet_error_bad_username, 'error');
+				admin_redirect($html->url());
+			}
 
-				// valid UID?
-				if($puppet_user['uid'] != $uid)
+			$username = $db->escape_string(strtolower($mybb->input['username']));
+			$query = $db->simple_select('users', '*', "username='{$username}'");
+			if($db->num_rows($query) == 0)
+			{
+				flash_message($lang->puppet_master_add_puppet_error_bad_username, 'error');
+				admin_redirect($html->url());
+			}
+
+			// get some info about the proposed pm
+			$puppet_user = $db->fetch_array($query);
+			$uid = (int) $puppet_user['uid'];
+			$ownerid = (int) $mybb->input['ownerid'];
+
+			// valid UID?
+			if($puppet_user['uid'] != $uid)
+			{
+				// if not then reject it
+				flash_message($lang->puppet_master_add_puppet_error_bad_username, 'error');
+				admin_redirect($html->url(array("action" => 'edit', "uid" => $ownerid)));
+			}
+
+			// if the puppet master doesn't already have this puppet
+			$query = $db->simple_select('puppets', '*', "uid='{$uid}' AND ownerid='{$ownerid}'");
+			if($db->num_rows($query) == 0)
+			{
+				$num_puppets = (int) $db->num_rows($query);
+
+				if(isset($mybb->input['disp_order']) && $mybb->input['disp_order'])
 				{
-					// if not then reject it
-					flash_message($lang->puppet_master_add_puppet_error_bad_uid, 'error');
-					admin_redirect($html->url(array("action" => 'edit', "uid" => $ownerid)));
-				}
-
-				// if the puppet master doesn't already have this puppet
-				$query = $db->simple_select('puppets', '*', "uid='{$uid}' AND ownerid='{$ownerid}'");
-				if($db->num_rows($query) == 0)
-				{
-					$num_puppets = (int) $db->num_rows($query);
-
-					if(isset($mybb->input['disp_order']) && $mybb->input['disp_order'])
-					{
-						$disp_order = (int) $mybb->input['disp_order'];
-					}
-					else
-					{
-						$disp_order = (int) $num_puppets * 10 + 10;
-					}
-
-					// add it
-					$this_puppet = array
-					(
-						"uid" => $uid,
-						"username" => $puppet_user['username'],
-						"ownerid" => $ownerid,
-						"disp_order" => $disp_order
-					);
-					$db->insert_query('puppets', $this_puppet);
-
-					flash_message($lang->puppet_master_add_puppet_success, 'success');
+					$disp_order = (int) $mybb->input['disp_order'];
 				}
 				else
 				{
-					flash_message($lang->puppet_master_add_puppet_error_duplicate, 'error');
+					$disp_order = (int) $num_puppets * 10 + 10;
 				}
+
+				// add it
+				$this_puppet = array
+				(
+					"uid" => $uid,
+					"username" => $puppet_user['username'],
+					"ownerid" => $ownerid,
+					"disp_order" => $disp_order
+				);
+				$db->insert_query('puppets', $this_puppet);
+
+				flash_message($lang->puppet_master_add_puppet_success, 'success');
 			}
 			else
 			{
-				flash_message($lang->puppet_master_add_puppet_error_bad_uid, 'error');
+				flash_message($lang->puppet_master_add_puppet_error_duplicate, 'error');
 			}
 			admin_redirect($html->url(array("action" => 'edit', "uid" => $ownerid)));
 		}
@@ -375,9 +400,18 @@ function puppet_master_admin_edit()
 	$form = new Form($html->url(array("action" => 'edit', "mode" => 'add')), "post");
 	$form_container = new FormContainer($lang->sprintf($lang->puppet_master_add_puppet_for, $puppet_master->get('username')));
 
-	$form_container->output_row($lang->puppet_master_puppet_uid, '', $form->generate_text_box('uid'));
+	$form_container->output_row($lang->puppet_master_puppet_username, '', $form->generate_text_box('username', '', array('id' => 'username')));
 	$form_container->output_row($lang->puppet_master_display_order, '', $form->generate_text_box('disp_order', count($puppets) * 10 + 10) . $form->generate_hidden_field('ownerid', $uid));
 	$form_container->end();
+	
+	// Autocompletion for usernames
+	echo '
+	<script type="text/javascript" src="../jscripts/autocomplete.js?ver=140"></script>
+	<script type="text/javascript">
+	<!--
+		new autoComplete("username", "../xmlhttp.php?action=get_users", {valueSpan: "username"});
+	// -->
+	</script>';
 
 	// finish form and page
 	$buttons = array($form->generate_submit_button($lang->puppet_master_add, array('name' => 'add_puppet_submit')));

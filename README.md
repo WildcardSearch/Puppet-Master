@@ -1,4 +1,4 @@
-## Puppet Master 1.0.1
+## Puppet Master 1.1
 
 <p align="center">
   <img title="Advanced Sidebox Logo" alt="Advanced Sidebox Logo" src="http://i.imgur.com/3ip8d2G.png" />

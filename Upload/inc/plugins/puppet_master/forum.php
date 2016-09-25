@@ -18,7 +18,7 @@ puppet_master_initialize();
  */
 function puppet_master_insert_options()
 {
-	global $mybb;
+	global $mybb, $is_selected;
 
 	// if the user is a puppet master
 	if(!$mybb->user['puppet_master'])
@@ -52,6 +52,11 @@ function puppet_master_insert_options()
 	$puppets = '';
 	while($puppet = $db->fetch_array($query))
 	{
+		$is_selected = '';
+		if($puppet['uid'] == $mybb->input['which_puppet'])
+		{
+			$is_selected = ' selected';
+		}
 		eval("\$puppets .= \"" . $templates->get('puppetmaster_puppet_option') . "\";");
 	}
 
@@ -99,7 +104,7 @@ function puppet_master_insert_options()
  */
 function puppet_master_cloak()
 {
-	global $mybb, $db, $thread;
+	global $mybb, $db, $thread, $uid, $username;
 
 	// if the user opted to post as a puppet account . . .
 	if(!$mybb->input['which_puppet'] || $mybb->input['which_puppet'] == $mybb->user['uid'])
@@ -110,6 +115,14 @@ function puppet_master_cloak()
 	if(THIS_SCRIPT == 'private.php')
 	{
 		$fake_location = "/private.php";
+	}
+	elseif((THIS_SCRIPT == 'newreply.php' || THIS_SCRIPT == 'newthread.php') && $mybb->input['previewpost'])
+	{
+		// use the puppet uid instead of their real uid
+		$uid = (int) $mybb->input['which_puppet'];
+		$mybb->user = get_user($uid);
+		$username = $mybb->user['username'];
+		return;
 	}
 	else
 	{
@@ -175,23 +188,9 @@ function puppet_master_hide()
 		return;
 	}
 
-	// create an update array
-	$unapproved = array();
-
-	// decide whether to update a post or a thread . . .
-	$unapproved['visible'] = 0;
-	if(THIS_SCRIPT == 'newreply.php')
-	{
-		$unapproved['ipaddress'] = PM_FAKE_IP;
-		$db->update_query('posts', $unapproved, "pid='{$pid}'", 1);
-	}
-	elseif(THIS_SCRIPT == 'newthread.php')
-	{
-		$db->update_query('threads', $unapproved, "tid='{$tid}'");
-
-		$fake_ip['ipaddress'] = PM_FAKE_IP;
-		$db->update_query('posts', $fake_ip, "pid='{$thread_info['pid']}'");
-	}
+	require_once 'inc/class_moderation.php';
+	$mod = new Moderation;
+	$mod->unapprove_posts(array($pid));
 }
 
 /*
@@ -246,12 +245,30 @@ function puppet_master_initialize()
 			break;
 		case 'newreply.php':
 			$plugins->add_hook("newreply_start", "puppet_master_insert_options");
-			$plugins->add_hook("newreply_do_newreply_start", "puppet_master_cloak");
+
+			if($mybb->input['previewpost'] && !$mybb->input['ajax'])
+			{
+				$plugins->add_hook("newreply_start", "puppet_master_cloak");
+			}
+			else
+			{
+				$plugins->add_hook("newreply_do_newreply_start", "puppet_master_cloak");
+			}
+
 			$plugins->add_hook("newreply_do_newreply_end", "puppet_master_hide");
 			break;
 		case 'newthread.php':
 			$plugins->add_hook("newthread_start", "puppet_master_insert_options");
-			$plugins->add_hook("newthread_do_newthread_start", "puppet_master_cloak");
+
+			if($mybb->input['previewpost'])
+			{
+				$plugins->add_hook("newthread_start", "puppet_master_cloak");
+			}
+			else
+			{
+				$plugins->add_hook("newthread_do_newthread_start", "puppet_master_cloak");
+			}
+
 			$plugins->add_hook("newthread_do_newthread_end", "puppet_master_hide");
 			break;
 		case 'editpost.php':
