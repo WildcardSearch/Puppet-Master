@@ -79,7 +79,7 @@ EOF;
 		"website" => 'https://github.com/WildcardSearch/Puppet-Master',
 		"author" => $author,
 		"authorsite" => 'http://www.rantcentralforums.com',
-		"version" => '1.0.1',
+		"version" => '1.1',
 		"compatibility" => '16*',
 		"guid" => '9b2d03ebbf540d83b2f97726d7426052',
 	);
