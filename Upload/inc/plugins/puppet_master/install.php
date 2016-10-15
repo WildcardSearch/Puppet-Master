@@ -79,8 +79,8 @@ EOF;
 		"website" => 'https://github.com/WildcardSearch/Puppet-Master',
 		"author" => $author,
 		"authorsite" => 'http://www.rantcentralforums.com',
-		"version" => '1.1',
-		"compatibility" => '16*',
+		"version" => '2.0',
+		"compatibility" => '18*',
 		"guid" => '9b2d03ebbf540d83b2f97726d7426052',
 	);
 }

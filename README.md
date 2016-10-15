@@ -1,4 +1,5 @@
-## Puppet Master 1.1
+## Puppet Master 2.0
+for MyBB 1.8.x
 
 <p align="center">
   <img title="Advanced Sidebox Logo" alt="Advanced Sidebox Logo" src="http://i.imgur.com/3ip8d2G.png" />
