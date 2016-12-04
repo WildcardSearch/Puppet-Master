@@ -1,6 +1,6 @@
 <?php
 /*
- * Plug-in Name: Puppet Master for MyBB 1.6.x
+ * Plug-in Name: Puppet Master for MyBB 1.8.x
  * Copyright 2013 WildcardSearch
  * http://www.rantcentralforums.com
  *
@@ -79,7 +79,7 @@ EOF;
 		"website" => 'https://github.com/WildcardSearch/Puppet-Master',
 		"author" => $author,
 		"authorsite" => 'http://www.rantcentralforums.com',
-		"version" => '2.0',
+		"version" => '2.1',
 		"compatibility" => '18*',
 		"guid" => '9b2d03ebbf540d83b2f97726d7426052',
 	);
