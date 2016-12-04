@@ -39,11 +39,10 @@ function puppet_master_info()
 					</li>
 				</ul>
 EOF;
-	}
 
-	$button_pic = $mybb->settings['bburl'] . '/inc/plugins/puppet_master/images/donate.gif';
-	$border_pic = $mybb->settings['bburl'] . '/inc/plugins/puppet_master/images/pixel.gif';
-	$puppet_master_description = <<<EOF
+		$button_pic = $mybb->settings['bburl'] . '/inc/plugins/puppet_master/images/donate.gif';
+		$border_pic = $mybb->settings['bburl'] . '/inc/plugins/puppet_master/images/pixel.gif';
+		$puppet_master_description = <<<EOF
 <table width="100%">
 	<tbody>
 		<tr>
@@ -63,6 +62,9 @@ EOF;
 	</tbody>
 </table>
 EOF;
+	} else {
+		$puppet_master_description = $lang->puppet_master_description;
+	}
 
 	$name = <<<EOF
 <span style="font-familiy: arial; font-size: 1.5em; color: black; text-shadow: 2px 2px 2px dimgray;">{$lang->puppet_master}</span>
