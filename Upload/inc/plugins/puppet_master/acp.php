@@ -1,6 +1,6 @@
 <?php
 /*
- * Plug-in Name: Puppet Master for MyBB 1.6.x
+ * Plug-in Name: Puppet Master for MyBB 1.8.x
  * Copyright 2013 WildcardSearch
  * http://www.rantcentralforums.com
  *
@@ -80,7 +80,7 @@ function puppet_master_admin_main()
 				admin_redirect($html->url());
 			}
 
-			$username = $db->escape_string(strtolower($mybb->input['username']));
+			$username = $db->escape_string(my_strtolower($mybb->input['username']));
 			$query = $db->simple_select('users', '*', "username='{$username}'");
 			if($db->num_rows($query) == 0)
 			{
@@ -181,7 +181,7 @@ function puppet_master_admin_main()
 	$form_container->output_row($lang->puppet_master_pm_username, '', $form->generate_text_box('username', '', array('id' => 'username')));
 	$form_container->output_row('', '', $form->generate_check_box('post_hidden', 1, $lang->puppet_master_post_unapproved, array("checked" => false)));
 	$form_container->end();
-	
+
 	// Autocompletion for usernames
 	echo '
 <link rel="stylesheet" href="../jscripts/select2/select2.css">
@@ -252,7 +252,7 @@ function puppet_master_admin_edit()
 				admin_redirect($html->url());
 			}
 
-			$username = $db->escape_string(strtolower($mybb->input['username']));
+			$username = $db->escape_string(my_strtolower($mybb->input['username']));
 			$query = $db->simple_select('users', '*', "username='{$username}'");
 			if($db->num_rows($query) == 0)
 			{
@@ -432,7 +432,7 @@ function puppet_master_admin_edit()
 	$form_container->output_row($lang->puppet_master_puppet_username, '', $form->generate_text_box('username', '', array('id' => 'username')));
 	$form_container->output_row($lang->puppet_master_display_order, '', $form->generate_text_box('disp_order', count($puppets) * 10 + 10) . $form->generate_hidden_field('ownerid', $uid));
 	$form_container->end();
-	
+
 	// Autocompletion for usernames
 	echo '
 <link rel="stylesheet" href="../jscripts/select2/select2.css">
@@ -475,7 +475,7 @@ $("#username").select2({
 	$buttons = array($form->generate_submit_button($lang->puppet_master_add, array('name' => 'add_puppet_submit')));
 	$form->output_submit_wrapper($buttons);
 	$form->end();
-	
+
 	echo('<br />');
 
 	// save defaults form
