@@ -81,7 +81,7 @@ EOF;
 		"website" => 'https://github.com/WildcardSearch/Puppet-Master',
 		"author" => $author,
 		"authorsite" => 'http://www.rantcentralforums.com',
-		"version" => '2.1',
+		"version" => PUPPET_MASTER_VERSION,
 		"compatibility" => '18*',
 		"codename" => 'puppet_master',
 	);
