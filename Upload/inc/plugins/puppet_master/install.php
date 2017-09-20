@@ -83,7 +83,7 @@ EOF;
 		"authorsite" => 'http://www.rantcentralforums.com',
 		"version" => '2.1',
 		"compatibility" => '18*',
-		"guid" => '9b2d03ebbf540d83b2f97726d7426052',
+		"codename" => 'puppet_master',
 	);
 }
 
