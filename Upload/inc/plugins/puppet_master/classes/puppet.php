@@ -11,7 +11,7 @@ class Puppet extends StorableObject
 	protected $uid = 0;
 	protected $username = '';
 	protected $disp_order = 0;
-	protected $table_name = 'puppets';
+	protected $tableName = 'puppets';
 }
 
 ?>

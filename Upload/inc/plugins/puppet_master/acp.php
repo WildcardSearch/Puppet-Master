@@ -310,7 +310,7 @@ function puppet_master_admin_edit()
 	if ($mybb->input['mode'] == 'delete') {
 		$puppet = new Puppet((int) $mybb->input['id']);
 
-		if ($puppet->is_valid()) {
+		if ($puppet->isValid()) {
 			$success = $puppet->remove();
 		}
 

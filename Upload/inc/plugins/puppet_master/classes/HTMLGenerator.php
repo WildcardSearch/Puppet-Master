@@ -8,14 +8,16 @@
 
 class HTMLGenerator
 {
-	/*
-	 * default URL for links, can be set in __construct() by the plugin ACP
+	/**
+	 * @var string default URL for links,
+	 * can be set in __construct() by the plugin ACP
 	 * page but can be changed in-line if needed
 	 */
 	public $base_url = 'index.php';
 
-	/*
-	 * allowed $_GET/$mybb->input variable names, add custom keys in
+	/**
+	 * @var array allowed $_GET/$mybb->input
+	 * variable names, add custom keys in
 	 * __construct() or in-line
 	 */
 	public $allowed_url_keys = array(
@@ -26,9 +28,12 @@ class HTMLGenerator
 		'uid',
 		'tid',
 		'page',
-		'my_post_key'
+		'my_post_key',
 	);
 
+	/**
+	 * @var array
+	 */
 	public $allowed_img_properties = array(
 		'id',
 		'name',
@@ -36,23 +41,28 @@ class HTMLGenerator
 		'alt',
 		'style',
 		'class',
-		'onclick'
+		'onclick',
 	);
 
+	/**
+	 * @var array
+	 */
 	public $allowed_link_properties = array(
 		'id',
 		'name',
 		'title',
 		'style',
 		'class',
-		'onclick'
+		'onclick',
+		'target',
 	);
 
 	/**
-	 * @param  string the base URL for all links and URLs
-	 * @param  string|array key name or an array of key names to allow
+	 * constructor
 	 *
-	 * @return  void
+	 * @param  string the base URL for all links and URLs
+	 * @param  string|array 1+ key names
+	 * @return void
 	 */
 	public function __construct($url = '', $extra_keys = '')
 	{
@@ -68,7 +78,8 @@ class HTMLGenerator
 			}
 			foreach ($extra_keys as $key) {
 				$key = trim($key);
-				if ($key && !in_array($key, $this->allowed_url_keys)) {
+				if ($key &&
+					!in_array($key, $this->allowed_url_keys)) {
 					$this->allowed_url_keys[] = $key;
 				}
 			}
@@ -80,12 +91,13 @@ class HTMLGenerator
 	 *
 	 * @param  array keyed to standard URL options
 	 * @param  string overrides the default URL base if present
-	 * @param  boolean override URL encoded ampersand (for JS mostly)
+	 * @param  bool override URL encoded ampersand (for JS mostly)
 	 * @return string URL
 	 */
 	public function url($options = array(), $base_url = '', $encoded = true)
 	{
-		if ($base_url && trim($base_url)) {
+		if ($base_url &&
+			trim($base_url)) {
 			$url = $base_url;
 		} else {
 			$url = $this->base_url;
@@ -102,7 +114,8 @@ class HTMLGenerator
 
 		// check for the allowed options
 		foreach ((array) $this->allowed_url_keys as $item) {
-			if (isset($options[$item]) && $options[$item]) {
+			if (isset($options[$item]) &&
+				$options[$item]) {
 				// and add them if set
 				$url .= "{$sep}{$item}={$options[$item]}";
 				$sep = $amp;
@@ -133,7 +146,8 @@ EOF;
 		if (!$url) {
 			$url = $this->url();
 		}
-		if (!isset($caption) || !$caption) {
+		if (!isset($caption) ||
+			!$caption) {
 			$caption = $url;
 		}
 
@@ -159,7 +173,7 @@ EOF;
 	}
 
 	/**
-	 * convert an array of key/vals to an HTML property string
+	 * build HTML property list
 	 *
 	 * @param  array keyed array of properties
 	 * @param  array unindexed array of allowable property names
@@ -173,7 +187,8 @@ EOF;
 		}
 
 		foreach ($allowed as $key) {
-			if (isset($options[$key]) && $options[$key]) {
+			if (isset($options[$key]) &&
+				$options[$key]) {
 				$property_list .= <<<EOF
  {$key}="{$options[$key]}"
 EOF;

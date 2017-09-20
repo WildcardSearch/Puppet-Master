@@ -107,7 +107,7 @@ function puppet_master_install()
 
 	// settings tables, templates, groups and setting groups
 	if (!class_exists('WildcardPluginInstaller')) {
-		require_once MYBB_ROOT . 'inc/plugins/puppet_master/classes/installer.php';
+		require_once MYBB_ROOT . 'inc/plugins/puppet_master/classes/WildcardPluginInstaller.php';
 	}
 
 	$installer = new WildcardPluginInstaller(MYBB_ROOT . 'inc/plugins/puppet_master/install_data.php');
@@ -141,6 +141,19 @@ function puppet_master_activate()
 	$info = puppet_master_info();
 	if (version_compare($old_version, $info['version'], '<')) {
 		puppet_master_install();
+
+		if (version_compare($old_version, '2.1', '<')) {
+			$removedFiles = array(
+				'inc/classes/installer.php',
+				'inc/classes/malleable.php',
+				'inc/classes/storable.php',
+				'inc/classes/html_generator.php',
+			);
+
+			foreach ($removedFiles as $file) {
+				@unlink(MYBB_ROOT . $file);
+			}
+		}
 	}
 
 	puppet_master_set_cache_version();
@@ -182,7 +195,7 @@ function puppet_master_uninstall()
 
 	// settings tables, templates, groups and setting groups
 	if (!class_exists('WildcardPluginInstaller')) {
-		require_once MYBB_ROOT . 'inc/plugins/puppet_master/classes/installer.php';
+		require_once MYBB_ROOT . 'inc/plugins/puppet_master/classes/WildcardPluginInstaller.php';
 	}
 
 	$installer = new WildcardPluginInstaller(MYBB_ROOT . 'inc/plugins/puppet_master/install_data.php');

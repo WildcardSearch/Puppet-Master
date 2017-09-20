@@ -4,7 +4,7 @@
  * Copyright 2013 WildcardSearch
  * http://www.rantcentralforums.com
  *
- * this file contains data used by classes/installer.php
+ * this file contains data used by classes/WildcardPluginInstaller.php
  */
 
 $tables = array (
