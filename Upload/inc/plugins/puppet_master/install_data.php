@@ -1,16 +1,14 @@
 <?php
 /*
- * Plug-in Name: Puppet Master for MyBB 1.6.x
+ * Plug-in Name: Puppet Master for MyBB 1.8.x
  * Copyright 2013 WildcardSearch
  * http://www.rantcentralforums.com
  *
  * this file contains data used by classes/installer.php
  */
 
-$tables = array
-(
-	"puppets" => array
-	(
+$tables = array (
+	"puppets" => array (
 		"id" => 'INT(10) NOT NULL AUTO_INCREMENT PRIMARY KEY',
 		"uid" => 'INT(10) NOT NULL',
 		"ownerid" => 'INT(10) NOT NULL',
@@ -20,10 +18,8 @@ $tables = array
 	)
 );
 
-$columns = array
-(
-	"users" => array
-	(
+$columns = array (
+	"users" => array (
 		"puppet_master" => 'INT(1) DEFAULT 0',
 		"post_hidden" => 'INT(1) DEFAULT 0'
 	)
