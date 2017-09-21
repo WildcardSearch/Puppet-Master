@@ -1,6 +1,6 @@
 <?php
 /*
- * Plug-in Name: Puppet Master for MyBB 1.6.x
+ * Plug-in Name: Puppet Master for MyBB 1.8.x
  * Copyright 2013 WildcardSearch
  * http://www.rantcentralforums.com
  *
@@ -9,52 +9,44 @@
 
 puppet_master_initialize();
 
-/*
- * puppet_master_insert_options()
- *
+/**
  * if the user is a puppet master show the options
  *
- * @return: n/a
+ * @return void
  */
 function puppet_master_insert_options()
 {
 	global $mybb, $is_selected;
 
 	// if the user is a puppet master
-	if(!$mybb->user['puppet_master'])
-	{
+	if (!$mybb->user['puppet_master']) {
 		return;
 	}
 
 	global $puppet_options, $puppet_list_box, $db, $templates, $lang;
-	if(!$lang->puppet_master)
-	{
+	if (!$lang->puppet_master) {
 		$lang->load('puppet_master');
 	}
 
 	$uid = (int) $mybb->user['uid'];
 
 	// set the defaults
-	if($mybb->user['post_hidden'])
-	{
+	if ($mybb->user['post_hidden']) {
 		$is_hidden = ' checked="checked"';
 	}
 
 	$query = $db->simple_select('puppets', '*', "ownerid='{$uid}'", array("order_by" => 'disp_order', "order_dir" => 'ASC'));
 
 	// if the pm has no puppets get out
-	if($db->num_rows($query) == 0)
-	{
+	if ($db->num_rows($query) == 0) {
 		return;
 	}
 
 	// build a list box
 	$puppets = '';
-	while($puppet = $db->fetch_array($query))
-	{
+	while ($puppet = $db->fetch_array($query)) {
 		$is_selected = '';
-		if($puppet['uid'] == $mybb->input['which_puppet'])
-		{
+		if ($puppet['uid'] == $mybb->input['which_puppet']) {
 			$is_selected = ' selected';
 		}
 		eval("\$puppets .= \"" . $templates->get('puppetmaster_puppet_option') . "\";");
@@ -63,69 +55,60 @@ function puppet_master_insert_options()
 	eval("\$puppet_list_box = \"" . $templates->get('puppetmaster_puppet_select') . "\";");
 
 	// tailor language / add post hidden option where appropriate
-	switch(THIS_SCRIPT)
-	{
-		case 'private.php':
-			$this_action = $lang->puppet_master_action_message;
-			break;
-		case 'editpost.php':
-			$this_action = $lang->puppet_master_action_edit;
-			break;
-		case 'newthread.php':
-		case 'newreply.php':
-		case 'showthread.php':
-			$this_action = $lang->puppet_master_action_post;
-			eval("\$post_unapproved = \"" . $templates->get('puppetmaster_post_unapproved') . "\";");
-			break;
-		default:
-			$this_action = $lang->puppet_master_action_moderate;
+	switch (THIS_SCRIPT) {
+	case 'private.php':
+		$this_action = $lang->puppet_master_action_message;
+		break;
+	case 'editpost.php':
+		$this_action = $lang->puppet_master_action_edit;
+		break;
+	case 'newthread.php':
+	case 'newreply.php':
+	case 'showthread.php':
+		$this_action = $lang->puppet_master_action_post;
+		eval("\$post_unapproved = \"" . $templates->get('puppetmaster_post_unapproved') . "\";");
+		break;
+	default:
+		$this_action = $lang->puppet_master_action_moderate;
 	}
 
 	// store options to be displayed
 	eval("\$all_puppet_options = \"" . $templates->get('puppetmaster_all_puppet_options') . "\";");
 
 	// only showthread.php needs and unwrapped set of inputs
-	if(THIS_SCRIPT != 'showthread.php')
-	{
+	if (THIS_SCRIPT != 'showthread.php') {
 		eval("\$puppet_options = \"" . $templates->get('puppetmaster_puppet_options_showthread') . "\";");
-	}
-	else
-	{
+	} else {
 		eval("\$puppet_options = \"" . $templates->get('puppetmaster_puppet_options') . "\";");
 	}
 }
 
-/*
- * puppet_master_cloak()
- *
+/**
  * check whether to post as puppet or not
  *
- * @return: n/a
+ * @return void
  */
 function puppet_master_cloak()
 {
 	global $mybb, $db, $thread, $uid, $username;
 
 	// if the user opted to post as a puppet account . . .
-	if(!$mybb->input['which_puppet'] || $mybb->input['which_puppet'] == $mybb->user['uid'])
-	{
+	if (!$mybb->input['which_puppet'] ||
+		$mybb->input['which_puppet'] == $mybb->user['uid']) {
 		return;
 	}
 
-	if(THIS_SCRIPT == 'private.php')
-	{
+	if (THIS_SCRIPT == 'private.php') {
 		$fake_location = "/private.php";
-	}
-	elseif((THIS_SCRIPT == 'newreply.php' || THIS_SCRIPT == 'newthread.php') && $mybb->input['previewpost'])
-	{
+	} elseif ((THIS_SCRIPT == 'newreply.php' ||
+		THIS_SCRIPT == 'newthread.php') &&
+		$mybb->input['previewpost']) {
 		// use the puppet uid instead of their real uid
 		$uid = (int) $mybb->input['which_puppet'];
 		$mybb->user = get_user($uid);
 		$username = $mybb->user['username'];
 		return;
-	}
-	else
-	{
+	} else {
 		$tid = (int) $mybb->input['tid'];
 		$fid = (int) $thread['fid'];
 
@@ -144,47 +127,40 @@ function puppet_master_cloak()
 	$query = $db->simple_select('sessions', 'sid', "uid='{$uid}'");
 
 	// if the user has a session then fetch it
-	if($db->num_rows($query) == 1)
-	{
+	if ($db->num_rows($query) == 1) {
 		$sid = $db->fetch_field($query, 'sid');
 	}
 
 	// if not
-	if(!$sid)
-	{
+	if (!$sid) {
 		// create it
 		$mybb->session->create_session($uid);
 		$sid = $mybb->session->sid;
 	}
 
-	if($sid)
-	{
+	if ($sid) {
 		// update the session with fake data
-		$fake_session = array
-		(
-			"sid"					=>	$sid,
-			"uid"					=>	$uid,
-			"time"				=>	TIME_NOW,
-			"ip"					=>	PM_FAKE_IP,
-			"location"			=>	$fake_location
+		$fake_session = array (
+			"sid" => $sid,
+			"uid" => $uid,
+			"time" => TIME_NOW,
+			"ip" => PM_FAKE_IP,
+			"location" => $fake_location
 		);
 		$db->update_query('sessions', $fake_session, "uid='{$uid}'");
 	}
 }
 
-/*
- * puppet_master_hide()
- *
+/**
  * check whether to post unapproved
  *
- * @return: n/a
+ * @return void
  */
 function puppet_master_hide()
 {
 	global $pid, $tid, $mybb, $db, $thread_info;
 
-	if($mybb->input['post_hidden'] != 1)
-	{
+	if ($mybb->input['post_hidden'] != 1) {
 		return;
 	}
 
@@ -193,20 +169,18 @@ function puppet_master_hide()
 	$mod->unapprove_posts(array($pid));
 }
 
-/*
- * puppet_master_mod_tools()
- *
+/**
  * cloaks moderator tool usage
  *
- * @return: n/a
+ * @return void
  */
 function puppet_master_mod_tools()
 {
 	global $mybb;
 
 	// if the user is cloaking . . .
-	if(!$mybb->input['which_puppet'] || $mybb->input['which_puppet'] == $mybb->user['uid'])
-	{
+	if (!$mybb->input['which_puppet'] ||
+		$mybb->input['which_puppet'] == $mybb->user['uid']) {
 		return;
 	}
 
@@ -217,78 +191,67 @@ function puppet_master_mod_tools()
 	$mybb->input['my_post_key'] = generate_post_check();
 }
 
-/*
- * puppet_master_initialize()
- *
+/**
  * add the appropriate hooks and get an IP to obfuscate with
  *
- * @return: n/a
+ * @return void
  */
 function puppet_master_initialize()
 {
 	global $mybb, $plugins, $templatelist;
 
-	if(!$mybb->settings['puppet_master_on'])
-	{
+	if (!$mybb->settings['puppet_master_on']) {
 		return;
 	}
 
 	$do_templates = true;
-	switch(THIS_SCRIPT)
-	{
-		case 'private.php':
-			$plugins->add_hook("private_send_start", "puppet_master_insert_options");
-			$plugins->add_hook("private_send_do_send", "puppet_master_cloak");
-			break;
-		case 'showthread.php':
-			$plugins->add_hook("showthread_start", "puppet_master_insert_options");
-			break;
-		case 'newreply.php':
-			$plugins->add_hook("newreply_start", "puppet_master_insert_options");
+	switch (THIS_SCRIPT) {
+	case 'private.php':
+		$plugins->add_hook("private_send_start", "puppet_master_insert_options");
+		$plugins->add_hook("private_send_do_send", "puppet_master_cloak");
+		break;
+	case 'showthread.php':
+		$plugins->add_hook("showthread_start", "puppet_master_insert_options");
+		break;
+	case 'newreply.php':
+		$plugins->add_hook("newreply_start", "puppet_master_insert_options");
 
-			if($mybb->input['previewpost'] && !$mybb->input['ajax'])
-			{
-				$plugins->add_hook("newreply_start", "puppet_master_cloak");
-			}
-			else
-			{
-				$plugins->add_hook("newreply_do_newreply_start", "puppet_master_cloak");
-			}
+		if ($mybb->input['previewpost'] &&
+			!$mybb->input['ajax']) {
+			$plugins->add_hook("newreply_start", "puppet_master_cloak");
+		} else {
+			$plugins->add_hook("newreply_do_newreply_start", "puppet_master_cloak");
+		}
 
-			$plugins->add_hook("newreply_do_newreply_end", "puppet_master_hide");
-			break;
-		case 'newthread.php':
-			$plugins->add_hook("newthread_start", "puppet_master_insert_options");
+		$plugins->add_hook("newreply_do_newreply_end", "puppet_master_hide");
+		break;
+	case 'newthread.php':
+		$plugins->add_hook("newthread_start", "puppet_master_insert_options");
 
-			if($mybb->input['previewpost'])
-			{
-				$plugins->add_hook("newthread_start", "puppet_master_cloak");
-			}
-			else
-			{
-				$plugins->add_hook("newthread_do_newthread_start", "puppet_master_cloak");
-			}
+		if ($mybb->input['previewpost']) {
+			$plugins->add_hook("newthread_start", "puppet_master_cloak");
+		} else {
+			$plugins->add_hook("newthread_do_newthread_start", "puppet_master_cloak");
+		}
 
-			$plugins->add_hook("newthread_do_newthread_end", "puppet_master_hide");
-			break;
-		case 'editpost.php':
-			$plugins->add_hook("editpost_start", "puppet_master_insert_options");
-			$plugins->add_hook("editpost_do_editpost_start", "puppet_master_cloak");
-			break;
-		case 'moderation.php':
-			$plugins->add_hook("moderation_start", "puppet_master_mod_tools");
-			break;
-		default:
-			$do_templates = false;
+		$plugins->add_hook("newthread_do_newthread_end", "puppet_master_hide");
+		break;
+	case 'editpost.php':
+		$plugins->add_hook("editpost_start", "puppet_master_insert_options");
+		$plugins->add_hook("editpost_do_editpost_start", "puppet_master_cloak");
+		break;
+	case 'moderation.php':
+		$plugins->add_hook("moderation_start", "puppet_master_mod_tools");
+		break;
+	default:
+		$do_templates = false;
 	}
 
-	if($do_templates)
-	{
+	if ($do_templates) {
 		$templatelist .= ',puppetmaster_puppet_option,puppetmaster_puppet_select,puppetmaster_post_unapproved,puppetmaster_all_puppet_options,puppetmaster_puppet_options_showthread,puppetmaster_puppet_options';
 	}
 
-	if(defined('PM_FAKE_IP'))
-	{
+	if (defined('PM_FAKE_IP')) {
 		return;
 	}
 
@@ -297,12 +260,9 @@ function puppet_master_initialize()
 	$hostname = $hostname_array[0];
 
 	$fake_ip = gethostbyname($hostname);
-	if($fake_ip != $hostname)
-	{
+	if ($fake_ip != $hostname) {
 		define('PM_FAKE_IP', $fake_ip);
-	}
-	else
-	{
+	} else {
 		define('PM_FAKE_IP', '127.0.0.1');
 	}
 }

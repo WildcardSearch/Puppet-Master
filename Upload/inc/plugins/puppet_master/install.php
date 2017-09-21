@@ -1,49 +1,56 @@
 <?php
 /*
- * Plug-in Name: Puppet Master for MyBB 1.6.x
+ * Plug-in Name: Puppet Master for MyBB 1.8.x
  * Copyright 2013 WildcardSearch
  * http://www.rantcentralforums.com
  *
  * this file contains the installation routines
  */
 
-/*
- * puppet_master_info()
- *
+/**
  * information about the plugin used by MyBB for display as well as to connect with updates
  *
- * @return: (array) the plugin info
+ * @return array the plugin info
  */
 function puppet_master_info()
 {
-	global $mybb, $lang;
+	global $mybb, $lang, $cp_style, $cache;
 
-	if(!$lang->puppet_master)
-	{
+	if (!$lang->puppet_master) {
 		$lang->load('puppet_master');
 	}
 
 	$extra_links = "<br />";
 	$settings_link = puppet_master_build_settings_link();
-	if($settings_link)
-	{
-		$url = PUPPET_MASTER_URL;
+	if ($settings_link) {
+		// only show Manage Puppets link if active
+		$plugin_list = $cache->read('plugins');
+		$manage_link = '';
+		if (!empty($plugin_list['active']) &&
+			is_array($plugin_list['active']) &&
+			in_array('puppet_master', $plugin_list['active'])) {
+			$url = PUPPET_MASTER_URL;
+			$manage_link = <<<EOF
+
+					<li style="list-style-image: url(styles/{$cp_style}/images/puppet_master/manage.png)">
+						<a href="{$url}" title="{$lang->puppet_master_manage_puppets}">{$lang->puppet_master_manage_puppets}</a>
+					</li>
+EOF;
+
+		}
+
 		$extra_links = <<<EOF
 
-				<ul>
-					<li style="list-style-image: url(../inc/plugins/puppet_master/images/settings.gif)">
+				<ul>{$manage_link}
+					<li style="list-style-image: url(styles/{$cp_style}/images/puppet_master/settings.png)">
 						{$settings_link}
-					</li>
-					<li style="list-style-image: url(../inc/plugins/puppet_master/images/manage.gif)">
-						<a href="{$url}">{$lang->puppet_master_manage_puppets}</a>
 					</li>
 				</ul>
 EOF;
-	}
 
-	$button_pic = $mybb->settings['bburl'] . '/inc/plugins/puppet_master/images/donate.gif';
-	$border_pic = $mybb->settings['bburl'] . '/inc/plugins/puppet_master/images/pixel.gif';
-	$puppet_master_description = <<<EOF
+		$button_pic = "styles/{$cp_style}/images/puppet_master/donate.png";
+		$border_pic = "styles/{$cp_style}/images/puppet_master/pixel.png";
+		$puppet_master_description = <<<EOF
 <table width="100%">
 	<tbody>
 		<tr>
@@ -51,7 +58,7 @@ EOF;
 				{$lang->puppet_master_description}{$extra_links}
 			</td>
 			<td style="text-align: center;">
-				<img src="{$mybb->settings['bburl']}/inc/plugins/puppet_master/images/logo.png" alt="{$lang->puppet_master_logo}"/><br /><br />
+				<img src="styles/{$cp_style}/images/puppet_master/logo.png" alt="{$lang->puppet_master_logo}"/><br /><br />
 				<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
 					<input type="hidden" name="cmd" value="_s-xclick">
 					<input type="hidden" name="hosted_button_id" value="VA5RFLBUC4XM4">
@@ -63,6 +70,9 @@ EOF;
 	</tbody>
 </table>
 EOF;
+	} else {
+		$puppet_master_description = $lang->puppet_master_description;
+	}
 
 	$name = <<<EOF
 <span style="font-familiy: arial; font-size: 1.5em; color: black; text-shadow: 2px 2px 2px dimgray;">{$lang->puppet_master}</span>
@@ -72,63 +82,54 @@ EOF;
 EOF;
 
 	// This array returns information about the plug-in, some of which was prefabricated above based on whether the plugin has been installed or not.
-	return array
-	(
+	return array (
 		"name" => $name,
 		"description" => $puppet_master_description,
 		"website" => 'https://github.com/WildcardSearch/Puppet-Master',
 		"author" => $author,
 		"authorsite" => 'http://www.rantcentralforums.com',
-		"version" => '2.0',
+		"version" => PUPPET_MASTER_VERSION,
 		"compatibility" => '18*',
-		"guid" => '9b2d03ebbf540d83b2f97726d7426052',
+		"codename" => 'puppet_master',
 	);
 }
 
-/*
- * puppet_master_is_installed()
- *
+/**
  * if the table exists report installed
  *
- * @return: (bool) true if installed, false if not
+ * @return bool
  */
 function puppet_master_is_installed()
 {
 	return puppet_master_get_settingsgroup();
 }
 
-/*
- * puppet_master_install()
- *
+/**
  * add the tables and the column to the users table
  *
- * @return: n/a
+ * @return void
  */
 function puppet_master_install()
 {
 	global $lang;
 
-	if(!$lang->puppet_master)
-	{
+	if (!$lang->puppet_master) {
 		$lang->load('puppet_master');
 	}
 
 	// settings tables, templates, groups and setting groups
-	if(!class_exists('WildcardPluginInstaller'))
-	{
-		require_once MYBB_ROOT . 'inc/plugins/puppet_master/classes/installer.php';
+	if (!class_exists('WildcardPluginInstaller')) {
+		require_once MYBB_ROOT . 'inc/plugins/puppet_master/classes/WildcardPluginInstaller.php';
 	}
 
 	$installer = new WildcardPluginInstaller(MYBB_ROOT . 'inc/plugins/puppet_master/install_data.php');
 	$installer->install();
 }
 
-/*
- * puppet_master_activate()
- *
+/**
  * edit templates/permissions
  *
- * @return: n/a
+ * @return void
  */
 function puppet_master_activate()
 {
@@ -150,20 +151,33 @@ function puppet_master_activate()
 	// if we just upgraded . . .
 	$old_version = puppet_master_get_cache_version();
 	$info = puppet_master_info();
-	if(version_compare($old_version, $info['version'], '<'))
-	{
+	if (version_compare($old_version, $info['version'], '<')) {
 		puppet_master_install();
+
+		if (version_compare($old_version, '2.1', '<')) {
+			$removedFiles = array(
+				'inc/classes/installer.php',
+				'inc/classes/malleable.php',
+				'inc/classes/storable.php',
+				'inc/classes/html_generator.php',
+			);
+
+			foreach ($removedFiles as $file) {
+				@unlink(MYBB_ROOT . $file);
+			}
+
+			@my_rmdir_recursive(MYBB_ROOT . 'inc/plugins/puppet_master/images');
+			@rmdir(MYBB_ROOT . 'inc/plugins/puppet_master/images');
+		}
 	}
 
 	puppet_master_set_cache_version();
 }
 
-/*
- * puppet_master_deactivate()
- *
+/**
  * undo template/permissions changes
  *
- * @return: n/a
+ * @return void
  */
 function puppet_master_deactivate()
 {
@@ -181,26 +195,22 @@ function puppet_master_deactivate()
 	find_replace_templatesets('private_send', "#" . preg_quote('{$puppet_options}') . "#i", '');
 }
 
-/*
- * puppet_master_uninstall()
- *
+/**
  * undo all db changes
  *
- * @return: n/a
+ * @return void
  */
 function puppet_master_uninstall()
 {
 	global $lang;
 
-	if(!$lang->puppet_master)
-	{
+	if (!$lang->puppet_master) {
 		$lang->load('puppet_master');
 	}
 
 	// settings tables, templates, groups and setting groups
-	if(!class_exists('WildcardPluginInstaller'))
-	{
-		require_once MYBB_ROOT . 'inc/plugins/puppet_master/classes/installer.php';
+	if (!class_exists('WildcardPluginInstaller')) {
+		require_once MYBB_ROOT . 'inc/plugins/puppet_master/classes/WildcardPluginInstaller.php';
 	}
 
 	$installer = new WildcardPluginInstaller(MYBB_ROOT . 'inc/plugins/puppet_master/install_data.php');
@@ -209,14 +219,10 @@ function puppet_master_uninstall()
 	puppet_master_unset_cache();
 }
 
-/*
- * puppet_master_get_cache_version()
- *
+/**
  * check cached version info
  *
- * derived from the work of pavemen in MyBB Publisher
- *
- * @return: the version that is currently cached
+ * @return string|int the version that is currently cached or 0 on error
  */
 function puppet_master_get_cache_version()
 {
@@ -224,21 +230,17 @@ function puppet_master_get_cache_version()
 
 	// get currently installed version, if there is one
 	$puppet_master = $cache->read('puppet_master');
-	if(is_array($puppet_master) && isset($puppet_master['version']))
-	{
+	if (is_array($puppet_master) &&
+		isset($puppet_master['version'])) {
         return $puppet_master['version'];
 	}
     return 0;
 }
 
-/*
- * puppet_master_set_cache_version()
- *
+/**
  * set cached version info
  *
- * derived from the work of pavemen in MyBB Publisher
- *
- * @return: n/a
+ * @return void
  */
 function puppet_master_set_cache_version()
 {
@@ -253,48 +255,37 @@ function puppet_master_set_cache_version()
 	$cache->update('puppet_master', $puppet_master);
 }
 
-/*
- * puppet_master_unset_cache_version()
- *
+/**
  * remove cached info
  *
  * derived from the work of pavemen in MyBB Publisher
  *
- * @return: n/a
+ * @return void
  */
 function puppet_master_unset_cache()
 {
 	global $cache;
 
-	$puppet_master = $cache->read('puppet_master');
-	$puppet_master = null;
-	$cache->update('puppet_master', $puppet_master);
+	$cache->update('puppet_master', null);
 }
 
-/*
- * settings
- */
+/* settings */
 
-/*
- * puppet_master_get_settingsgroup()
- *
+/**
  * retrieves the plugin's settings group gid if it exists
  * attempts to cache repeat calls
  *
- * @return: (int) the gid of the setting group
+ * @return int gid
  */
 function puppet_master_get_settingsgroup()
 {
 	static $puppet_master_settings_gid;
 
 	// if we have already stored the value
-	if(isset($puppet_master_settings_gid))
-	{
+	if (isset($puppet_master_settings_gid)) {
 		// don't waste a query
 		$gid = (int) $puppet_master_settings_gid;
-	}
-	else
-	{
+	} else {
 		global $db;
 
 		// otherwise we will have to query the db
@@ -304,43 +295,36 @@ function puppet_master_get_settingsgroup()
 	return $gid;
 }
 
-/*
- * puppet_master_build_settings_url()
- *
+/**
  * builds the url to modify plug-in settings if given valid info
  *
- * @param - $gid is an integer representing a valid settings group id
- * @return: (string) the URL to edit the settings
+ * @param  int group id
+ * @return string the URL to edit the settings
  */
 function puppet_master_build_settings_url($gid)
 {
-	if($gid)
-	{
+	if ($gid) {
 		return "index.php?module=config-settings&amp;action=change&amp;gid=" . $gid;
 	}
 }
 
-/*
- * puppet_master_build_settings_link()
- *
+/**
  * builds a link to modify plug-in settings if it exists
  *
- * @return: (string) the HTML anchor to edit the settings
+ * @return string the HTML anchor to edit the settings
  */
 function puppet_master_build_settings_link()
 {
 	global $lang;
 
-	if(!$lang->puppet_master)
-	{
+	if (!$lang->puppet_master) {
 		$lang->load('puppet_master');
 	}
 
 	$gid = puppet_master_get_settingsgroup();
 
 	// does the group exist?
-	if(!$gid)
-	{
+	if (!$gid) {
 		return false;
 	}
 
@@ -348,8 +332,7 @@ function puppet_master_build_settings_link()
 	$url = puppet_master_build_settings_url($gid);
 
 	// did we get a URL?
-	if(!$url)
-	{
+	if (!$url) {
 		return false;
 	}
 
