@@ -14,7 +14,7 @@
  */
 function puppet_master_info()
 {
-	global $mybb, $lang;
+	global $mybb, $lang, $cp_style, $cache;
 
 	if (!$lang->puppet_master) {
 		$lang->load('puppet_master');
@@ -23,21 +23,33 @@ function puppet_master_info()
 	$extra_links = "<br />";
 	$settings_link = puppet_master_build_settings_link();
 	if ($settings_link) {
-		$url = PUPPET_MASTER_URL;
+		// only show Manage Puppets link if active
+		$plugin_list = $cache->read('plugins');
+		$manage_link = '';
+		if (!empty($plugin_list['active']) &&
+			is_array($plugin_list['active']) &&
+			in_array('puppet_master', $plugin_list['active'])) {
+			$url = PUPPET_MASTER_URL;
+			$manage_link = <<<EOF
+
+					<li style="list-style-image: url(styles/{$cp_style}/images/puppet_master/manage.png)">
+						<a href="{$url}" title="{$lang->puppet_master_manage_puppets}">{$lang->puppet_master_manage_puppets}</a>
+					</li>
+EOF;
+
+		}
+
 		$extra_links = <<<EOF
 
-				<ul>
-					<li style="list-style-image: url(../inc/plugins/puppet_master/images/settings.gif)">
+				<ul>{$manage_link}
+					<li style="list-style-image: url(styles/{$cp_style}/images/puppet_master/settings.png)">
 						{$settings_link}
-					</li>
-					<li style="list-style-image: url(../inc/plugins/puppet_master/images/manage.gif)">
-						<a href="{$url}">{$lang->puppet_master_manage_puppets}</a>
 					</li>
 				</ul>
 EOF;
 
-		$button_pic = $mybb->settings['bburl'] . '/inc/plugins/puppet_master/images/donate.gif';
-		$border_pic = $mybb->settings['bburl'] . '/inc/plugins/puppet_master/images/pixel.gif';
+		$button_pic = "styles/{$cp_style}/images/puppet_master/donate.png";
+		$border_pic = "styles/{$cp_style}/images/puppet_master/pixel.png";
 		$puppet_master_description = <<<EOF
 <table width="100%">
 	<tbody>
@@ -46,7 +58,7 @@ EOF;
 				{$lang->puppet_master_description}{$extra_links}
 			</td>
 			<td style="text-align: center;">
-				<img src="{$mybb->settings['bburl']}/inc/plugins/puppet_master/images/logo.png" alt="{$lang->puppet_master_logo}"/><br /><br />
+				<img src="styles/{$cp_style}/images/puppet_master/logo.png" alt="{$lang->puppet_master_logo}"/><br /><br />
 				<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
 					<input type="hidden" name="cmd" value="_s-xclick">
 					<input type="hidden" name="hosted_button_id" value="VA5RFLBUC4XM4">
@@ -153,6 +165,9 @@ function puppet_master_activate()
 			foreach ($removedFiles as $file) {
 				@unlink(MYBB_ROOT . $file);
 			}
+
+			@my_rmdir_recursive(MYBB_ROOT . 'inc/plugins/puppet_master/images');
+			@rmdir(MYBB_ROOT . 'inc/plugins/puppet_master/images');
 		}
 	}
 
@@ -251,9 +266,7 @@ function puppet_master_unset_cache()
 {
 	global $cache;
 
-	$puppet_master = $cache->read('puppet_master');
-	$puppet_master = null;
-	$cache->update('puppet_master', $puppet_master);
+	$cache->update('puppet_master', null);
 }
 
 /* settings */
