@@ -5,7 +5,7 @@
  * http://www.rantcentralforums.com
  */
 
-class PuppetMaster extends MalleableObject
+class PuppetMaster extends MalleableObject010000
 {
 	protected $uid = 0;
 	protected $username = '';

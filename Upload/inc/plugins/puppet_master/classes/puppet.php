@@ -5,7 +5,7 @@
  * http://www.rantcentralforums.com
  */
 
-class Puppet extends StorableObject
+class Puppet extends StorableObject010000
 {
 	protected $ownerid = 0;
 	protected $uid = 0;

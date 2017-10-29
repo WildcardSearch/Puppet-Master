@@ -34,7 +34,7 @@ function puppet_master_admin_load()
 	require_once MYBB_ROOT . "inc/plugins/puppet_master/functions_acp.php";
 
 	// URL, link and image markup generator
-	$html = new HTMLGenerator(PUPPET_MASTER_URL, array('addon', 'pos', 'topic', 'ajax'));
+	$html = new HTMLGenerator010000(PUPPET_MASTER_URL, array('addon', 'pos', 'topic', 'ajax'));
 
 	// if there is an existing function for the action
 	$page_function = 'puppet_master_admin_' . $mybb->input['action'];
