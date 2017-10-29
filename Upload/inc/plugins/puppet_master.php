@@ -14,11 +14,27 @@ if (!defined('IN_MYBB')) {
 
 define('PUPPET_MASTER_VERSION', '2.1');
 
+// register custom class autoloader
+spl_autoload_register('puppetMasterClassAutoload');
+
 // load the install/admin routines only if in ACP.
 if (defined('IN_ADMINCP')) {
     require_once MYBB_ROOT . 'inc/plugins/puppet_master/acp.php';
 } else {
 	require_once MYBB_ROOT . 'inc/plugins/puppet_master/forum.php';
+}
+
+ /**
+  * class autoloader
+  *
+  * @param string the name of the class to load
+  */
+function puppetMasterClassAutoload($className) {
+	$path = MYBB_ROOT . "inc/plugins/puppet_master/classes/{$className}.php";
+
+	if (file_exists($path)) {
+		require_once $path;
+	}
 }
 
 ?>

@@ -31,7 +31,6 @@ function puppet_master_admin_load()
 		$lang->load('puppet_master');
 	}
 
-	require_once MYBB_ROOT . "inc/plugins/puppet_master/classes/acp.php";
 	require_once MYBB_ROOT . "inc/plugins/puppet_master/functions_acp.php";
 
 	// URL, link and image markup generator
