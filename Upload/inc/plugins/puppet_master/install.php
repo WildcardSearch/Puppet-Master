@@ -117,13 +117,7 @@ function puppet_master_install()
 		$lang->load('puppet_master');
 	}
 
-	// settings tables, templates, groups and setting groups
-	if (!class_exists('WildcardPluginInstaller')) {
-		require_once MYBB_ROOT . 'inc/plugins/puppet_master/classes/WildcardPluginInstaller.php';
-	}
-
-	$installer = new WildcardPluginInstaller(MYBB_ROOT . 'inc/plugins/puppet_master/install_data.php');
-	$installer->install();
+	PuppetMasterInstaller::getInstance()->install();
 }
 
 /**
@@ -151,7 +145,8 @@ function puppet_master_activate()
 	// if we just upgraded . . .
 	$old_version = puppet_master_get_cache_version();
 	$info = puppet_master_info();
-	if (version_compare($old_version, $info['version'], '<')) {
+	if ($old_version &&
+		version_compare($old_version, $info['version'], '<')) {
 		puppet_master_install();
 
 		if (version_compare($old_version, '2.1', '<')) {
@@ -168,6 +163,21 @@ function puppet_master_activate()
 
 			@my_rmdir_recursive(MYBB_ROOT . 'inc/plugins/puppet_master/images');
 			@rmdir(MYBB_ROOT . 'inc/plugins/puppet_master/images');
+		}
+
+		if (version_compare($old_version, '2.1.1', '<')) {
+			$removedFiles = array(
+				'inc/classes/acp.php',
+				'inc/classes/puppet_master.php',
+				'inc/classes/HTMLGenerator.php',
+				'inc/classes/MalleableObject.php',
+				'inc/classes/StorableObject.php',
+				'inc/classes/WildcardPluginInstaller.php',
+			);
+
+			foreach ($removedFiles as $file) {
+				@unlink(MYBB_ROOT . $file);
+			}
 		}
 	}
 
@@ -208,13 +218,7 @@ function puppet_master_uninstall()
 		$lang->load('puppet_master');
 	}
 
-	// settings tables, templates, groups and setting groups
-	if (!class_exists('WildcardPluginInstaller')) {
-		require_once MYBB_ROOT . 'inc/plugins/puppet_master/classes/WildcardPluginInstaller.php';
-	}
-
-	$installer = new WildcardPluginInstaller(MYBB_ROOT . 'inc/plugins/puppet_master/install_data.php');
-	$installer->uninstall();
+	PuppetMasterInstaller::getInstance()->uninstall();
 
 	puppet_master_unset_cache();
 }
