@@ -262,7 +262,7 @@ function puppet_master_admin_edit()
 				// add it
 				$this_puppet = array (
 					"uid" => $uid,
-					"username" => $puppet_user['username'],
+					"username" => $db->escape_string($puppet_user['username']),
 					"ownerid" => $ownerid,
 					"disp_order" => $disp_order
 				);
