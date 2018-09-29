@@ -49,27 +49,27 @@ if (version_compare($puppetMasterOldVersion, '2.1.3', '<')) {
 /* remove file(s)/folder(s) */
 if (!empty($removedForumFiles)) {
 	foreach ($removedForumFiles as $file) {
-		@unlink(MYBB_ROOT . $file);
+		@unlink(MYBB_ROOT.$file);
 	}
 }
 
 if (!empty($removedForumFolders)) {
 	foreach ($removedForumFolders as $folder) {
-		@my_rmdir_recursive(MYBB_ROOT . $folder);
-		@rmdir(MYBB_ROOT . $folder);
+		@my_rmdir_recursive(MYBB_ROOT.$folder);
+		@rmdir(MYBB_ROOT.$folder);
 	}
 }
 
 if (!empty($removedAdminFiles)) {
 	foreach ($removedAdminFiles as $file) {
-		@unlink(MYBB_ADMIN_DIR . $file);
+		@unlink(MYBB_ADMIN_DIR.$file);
 	}
 }
 
 if (!empty($removedAdminFolders)) {
 	foreach ($removedAdminFolders as $folder) {
-		@my_rmdir_recursive(MYBB_ADMIN_DIR . $folder);
-		@rmdir(MYBB_ADMIN_DIR . $folder);
+		@my_rmdir_recursive(MYBB_ADMIN_DIR.$folder);
+		@rmdir(MYBB_ADMIN_DIR.$folder);
 	}
 }
 

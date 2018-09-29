@@ -20,7 +20,7 @@ function puppet_master_info()
 		$lang->load('puppet_master');
 	}
 
-	$extra_links = "<br />";
+	$extra_links = '<br />';
 	$settings_link = puppet_master_build_settings_link();
 	if ($settings_link) {
 		// only show Manage Puppets link if active
@@ -83,14 +83,14 @@ EOF;
 
 	// This array returns information about the plug-in, some of which was prefabricated above based on whether the plugin has been installed or not.
 	return array (
-		"name" => $name,
-		"description" => $puppet_master_description,
-		"website" => 'https://github.com/WildcardSearch/Puppet-Master',
-		"author" => $author,
-		"authorsite" => 'http://www.rantcentralforums.com',
-		"version" => PUPPET_MASTER_VERSION,
-		"compatibility" => '18*',
-		"codename" => 'puppet_master',
+		'name' => $name,
+		'description' => $puppet_master_description,
+		'website' => 'https://github.com/WildcardSearch/Puppet-Master',
+		'author' => $author,
+		'authorsite' => 'http://www.rantcentralforums.com',
+		'version' => PUPPET_MASTER_VERSION,
+		'compatibility' => '18*',
+		'codename' => 'puppet_master',
 	);
 }
 
@@ -132,17 +132,17 @@ function puppet_master_activate()
 	// change the permissions to on by default
 	change_admin_permission('config', 'puppet_master');
 
-	require_once MYBB_ROOT . '/inc/adminfunctions_templates.php';
-	find_replace_templatesets('showthread_quickreply', "#" . preg_quote('{$closeoption}') . "#i", '{$closeoption}{$puppet_options}');
-	find_replace_templatesets('newreply', "#" . preg_quote('{$modoptions}') . "#i", '{$modoptions}{$puppet_options}');
-	find_replace_templatesets('newthread', "#" . preg_quote('{$modoptions}') . "#i", '{$modoptions}{$puppet_options}');
-	find_replace_templatesets('editpost', "#" . preg_quote('{$subscriptionmethod}') . "#i", '{$puppet_options}{$subscriptionmethod}');
-	find_replace_templatesets('editpost_moderate', "#" . preg_quote('</table>') . "#i", '{$puppet_options}</table>');
-	find_replace_templatesets('showthread_inlinemoderation', "#" . preg_quote('</form>') . "#i", '{$puppet_list_box}</form>');
-	find_replace_templatesets('showthread_moderationoptions', "#" . preg_quote('</form>') . "#i", '{$puppet_list_box}</form>');
-	find_replace_templatesets('private_send', "#</table>(.*?)</form>#is", '{$puppet_options}</table>$1</form>');
+	require_once MYBB_ROOT.'/inc/adminfunctions_templates.php';
+	find_replace_templatesets('showthread_quickreply', '#'.preg_quote('{$closeoption}').'#i', '{$closeoption}{$puppet_options}');
+	find_replace_templatesets('newreply', '#'.preg_quote('{$modoptions}').'#i', '{$modoptions}{$puppet_options}');
+	find_replace_templatesets('newthread', '#'.preg_quote('{$modoptions}').'#i', '{$modoptions}{$puppet_options}');
+	find_replace_templatesets('editpost', '#'.preg_quote('{$subscriptionmethod}').'#i', '{$puppet_options}{$subscriptionmethod}');
+	find_replace_templatesets('editpost_moderate', '#'.preg_quote('</table>').'#i', '{$puppet_options}</table>');
+	find_replace_templatesets('showthread_inlinemoderation', '#'.preg_quote('</form>').'#i', '{$puppet_list_box}</form>');
+	find_replace_templatesets('showthread_moderationoptions', '#'.preg_quote('</form>').'#i', '{$puppet_list_box}</form>');
+	find_replace_templatesets('private_send', '#</table>(.*?)</form>#is', '{$puppet_options}</table>$1</form>');
 
-	// if we just upgraded . . .
+	// if we just upgraded...
 	$puppetMasterOldVersion = puppet_master_get_cache_version();
 	if ($puppetMasterOldVersion &&
 		version_compare($puppetMasterOldVersion, PUPPET_MASTER_VERSION, '<')) {
@@ -162,15 +162,15 @@ function puppet_master_deactivate()
 	// remove the permissions
 	change_admin_permission('config', 'puppet_master', -1);
 
-	require_once MYBB_ROOT . '/inc/adminfunctions_templates.php';
-	find_replace_templatesets('showthread_quickreply', "#" . preg_quote('{$puppet_options}') . "#i", '');
-	find_replace_templatesets('newreply', "#" . preg_quote('{$puppet_options}') . "#i", '');
-	find_replace_templatesets('newthread', "#" . preg_quote('{$puppet_options}') . "#i", '');
-	find_replace_templatesets('editpost', "#" . preg_quote('{$puppet_options}') . "#i", '');
-	find_replace_templatesets('editpost_moderate', "#" . preg_quote('{$puppet_options}') . "#i", '');
-	find_replace_templatesets('showthread_inlinemoderation', "#" . preg_quote('{$puppet_list_box}') . "#i", '');
-	find_replace_templatesets('showthread_moderationoptions', "#" . preg_quote('{$puppet_list_box}') . "#i", '');
-	find_replace_templatesets('private_send', "#" . preg_quote('{$puppet_options}') . "#i", '');
+	require_once MYBB_ROOT.'/inc/adminfunctions_templates.php';
+	find_replace_templatesets('showthread_quickreply', '#'.preg_quote('{$puppet_options}').'#i', '');
+	find_replace_templatesets('newreply', '#'.preg_quote('{$puppet_options}').'#i', '');
+	find_replace_templatesets('newthread', '#'.preg_quote('{$puppet_options}').'#i', '');
+	find_replace_templatesets('editpost', '#'.preg_quote('{$puppet_options}').'#i', '');
+	find_replace_templatesets('editpost_moderate', '#'.preg_quote('{$puppet_options}').'#i', '');
+	find_replace_templatesets('showthread_inlinemoderation', '#'.preg_quote('{$puppet_list_box}').'#i', '');
+	find_replace_templatesets('showthread_moderationoptions', '#'.preg_quote('{$puppet_list_box}').'#i', '');
+	find_replace_templatesets('private_send', '#'.preg_quote('{$puppet_options}').'#i', '');
 }
 
 /**
@@ -261,7 +261,7 @@ function puppet_master_get_settingsgroup()
 		global $db;
 
 		// otherwise we will have to query the db
-		$query = $db->simple_select("settinggroups", "gid", "name='puppet_master_settings'");
+		$query = $db->simple_select('settinggroups', 'gid', "name='puppet_master_settings'");
 		$gid = (int) $db->fetch_field($query, 'gid');
 	}
 	return $gid;
@@ -276,7 +276,7 @@ function puppet_master_get_settingsgroup()
 function puppet_master_build_settings_url($gid)
 {
 	if ($gid) {
-		return "index.php?module=config-settings&amp;action=change&amp;gid=" . $gid;
+		return 'index.php?module=config-settings&amp;action=change&amp;gid='.$gid;
 	}
 }
 
