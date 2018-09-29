@@ -40,7 +40,7 @@ function _pm_get_all_puppets($ownerid)
 {
 	global $db;
 
-	$query = $db->simple_select('puppets', '*', "ownerid='{$ownerid}'", array("order_by" => 'disp_order', "order_dir" => 'ASC'));
+	$query = $db->simple_select('puppets', '*', "ownerid='{$ownerid}'", array('order_by' => 'disp_order', 'order_dir' => 'ASC'));
 
 	if ($db->num_rows($query) > 0) {
 		$puppets = array();

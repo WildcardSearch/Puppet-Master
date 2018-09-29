@@ -35,7 +35,7 @@ function puppet_master_insert_options()
 		$is_hidden = ' checked="checked"';
 	}
 
-	$query = $db->simple_select('puppets', '*', "ownerid='{$uid}'", array("order_by" => 'disp_order', "order_dir" => 'ASC'));
+	$query = $db->simple_select('puppets', '*', "ownerid='{$uid}'", array('order_by' => 'disp_order', 'order_dir' => 'ASC'));
 
 	// if the pm has no puppets get out
 	if ($db->num_rows($query) == 0) {
@@ -49,10 +49,10 @@ function puppet_master_insert_options()
 		if ($puppet['uid'] == $mybb->input['which_puppet']) {
 			$is_selected = ' selected';
 		}
-		eval("\$puppets .= \"" . $templates->get('puppetmaster_puppet_option') . "\";");
+		eval("\$puppets .= \"{$templates->get('puppetmaster_puppet_option')}\";");
 	}
 
-	eval("\$puppet_list_box = \"" . $templates->get('puppetmaster_puppet_select') . "\";");
+	eval("\$puppet_list_box = \"{$templates->get('puppetmaster_puppet_select')}\";");
 
 	// tailor language / add post hidden option where appropriate
 	switch (THIS_SCRIPT) {
@@ -66,20 +66,20 @@ function puppet_master_insert_options()
 	case 'newreply.php':
 	case 'showthread.php':
 		$this_action = $lang->puppet_master_action_post;
-		eval("\$post_unapproved = \"" . $templates->get('puppetmaster_post_unapproved') . "\";");
+		eval("\$post_unapproved = \"{$templates->get('puppetmaster_post_unapproved')}\";");
 		break;
 	default:
 		$this_action = $lang->puppet_master_action_moderate;
 	}
 
 	// store options to be displayed
-	eval("\$all_puppet_options = \"" . $templates->get('puppetmaster_all_puppet_options') . "\";");
+	eval("\$all_puppet_options = \"{$templates->get('puppetmaster_all_puppet_options')}\";");
 
 	// only showthread.php needs and unwrapped set of inputs
 	if (THIS_SCRIPT != 'showthread.php') {
-		eval("\$puppet_options = \"" . $templates->get('puppetmaster_puppet_options_showthread') . "\";");
+		eval("\$puppet_options = \"{$templates->get('puppetmaster_puppet_options_showthread')}\";");
 	} else {
-		eval("\$puppet_options = \"" . $templates->get('puppetmaster_puppet_options') . "\";");
+		eval("\$puppet_options = \"{$templates->get('puppetmaster_puppet_options')}\";");
 	}
 }
 
@@ -92,14 +92,14 @@ function puppet_master_cloak()
 {
 	global $mybb, $db, $thread, $uid, $username;
 
-	// if the user opted to post as a puppet account . . .
+	// if the user opted to post as a puppet account.. .
 	if (!$mybb->input['which_puppet'] ||
 		$mybb->input['which_puppet'] == $mybb->user['uid']) {
 		return;
 	}
 
 	if (THIS_SCRIPT == 'private.php') {
-		$fake_location = "/private.php";
+		$fake_location = '/private.php';
 	} elseif ((THIS_SCRIPT == 'newreply.php' ||
 		THIS_SCRIPT == 'newthread.php') &&
 		$mybb->input['previewpost']) {
@@ -113,7 +113,7 @@ function puppet_master_cloak()
 		$fid = (int) $thread['fid'];
 
 		// Mark thread as read
-		require_once MYBB_ROOT."inc/functions_indicators.php";
+		require_once MYBB_ROOT.'inc/functions_indicators.php';
 		mark_thread_read($tid, $fid);
 
 		$fake_location = "/showthread.php?tid={$mybb->input['tid']}";
@@ -141,11 +141,11 @@ function puppet_master_cloak()
 	if ($sid) {
 		// update the session with fake data
 		$fake_session = array (
-			"sid" => $sid,
-			"uid" => $uid,
-			"time" => TIME_NOW,
-			"ip" => PM_FAKE_IP,
-			"location" => $fake_location
+			'sid' => $sid,
+			'uid' => $uid,
+			'time' => TIME_NOW,
+			'ip' => PM_FAKE_IP,
+			'location' => $fake_location
 		);
 		$db->update_query('sessions', $fake_session, "uid='{$uid}'");
 	}
@@ -178,7 +178,7 @@ function puppet_master_mod_tools()
 {
 	global $mybb;
 
-	// if the user is cloaking . . .
+	// if the user is cloaking...
 	if (!$mybb->input['which_puppet'] ||
 		$mybb->input['which_puppet'] == $mybb->user['uid']) {
 		return;
@@ -207,41 +207,41 @@ function puppet_master_initialize()
 	$do_templates = true;
 	switch (THIS_SCRIPT) {
 	case 'private.php':
-		$plugins->add_hook("private_send_start", "puppet_master_insert_options");
-		$plugins->add_hook("private_send_do_send", "puppet_master_cloak");
+		$plugins->add_hook('private_send_start', 'puppet_master_insert_options');
+		$plugins->add_hook('private_send_do_send', 'puppet_master_cloak');
 		break;
 	case 'showthread.php':
-		$plugins->add_hook("showthread_start", "puppet_master_insert_options");
+		$plugins->add_hook('showthread_start', 'puppet_master_insert_options');
 		break;
 	case 'newreply.php':
-		$plugins->add_hook("newreply_start", "puppet_master_insert_options");
+		$plugins->add_hook('newreply_start', 'puppet_master_insert_options');
 
 		if ($mybb->input['previewpost'] &&
 			!$mybb->input['ajax']) {
-			$plugins->add_hook("newreply_start", "puppet_master_cloak");
+			$plugins->add_hook('newreply_start', 'puppet_master_cloak');
 		} else {
-			$plugins->add_hook("newreply_do_newreply_start", "puppet_master_cloak");
+			$plugins->add_hook('newreply_do_newreply_start', 'puppet_master_cloak');
 		}
 
-		$plugins->add_hook("newreply_do_newreply_end", "puppet_master_hide");
+		$plugins->add_hook('newreply_do_newreply_end', 'puppet_master_hide');
 		break;
 	case 'newthread.php':
-		$plugins->add_hook("newthread_start", "puppet_master_insert_options");
+		$plugins->add_hook('newthread_start', 'puppet_master_insert_options');
 
 		if ($mybb->input['previewpost']) {
-			$plugins->add_hook("newthread_start", "puppet_master_cloak");
+			$plugins->add_hook('newthread_start', 'puppet_master_cloak');
 		} else {
-			$plugins->add_hook("newthread_do_newthread_start", "puppet_master_cloak");
+			$plugins->add_hook('newthread_do_newthread_start', 'puppet_master_cloak');
 		}
 
-		$plugins->add_hook("newthread_do_newthread_end", "puppet_master_hide");
+		$plugins->add_hook('newthread_do_newthread_end', 'puppet_master_hide');
 		break;
 	case 'editpost.php':
-		$plugins->add_hook("editpost_start", "puppet_master_insert_options");
-		$plugins->add_hook("editpost_do_editpost_start", "puppet_master_cloak");
+		$plugins->add_hook('editpost_start', 'puppet_master_insert_options');
+		$plugins->add_hook('editpost_do_editpost_start', 'puppet_master_cloak');
 		break;
 	case 'moderation.php':
-		$plugins->add_hook("moderation_start", "puppet_master_mod_tools");
+		$plugins->add_hook('moderation_start', 'puppet_master_mod_tools');
 		break;
 	default:
 		$do_templates = false;

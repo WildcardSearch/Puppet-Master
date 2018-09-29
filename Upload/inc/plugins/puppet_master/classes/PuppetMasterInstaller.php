@@ -4,7 +4,7 @@
  * plugin specific extension
  */
 
-class PuppetMasterInstaller extends WildcardPluginInstaller010202
+class PuppetMasterInstaller extends WildcardPluginInstaller020000
 {
 	static public function getInstance()
 	{
@@ -22,9 +22,9 @@ class PuppetMasterInstaller extends WildcardPluginInstaller010202
 	 * @param  string path to the install data
 	 * @return void
 	 */
-	public function __construct($path = '')
+	public function __construct($path='')
 	{
-		parent::__construct(MYBB_ROOT . 'inc/plugins/puppet_master/install_data.php');
+		parent::__construct(MYBB_ROOT.'inc/plugins/puppet_master/install_data.php');
 	}
 }
 

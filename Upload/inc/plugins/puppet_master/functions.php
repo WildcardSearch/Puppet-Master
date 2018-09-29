@@ -11,7 +11,7 @@
  * @param  array keyed to standard url options
  * @return string URL
  */
-function _pm_url($options = array(), $url = '')
+function _pm_url($options=array(), $url='')
 {
 	if (!$url) {
 		$url = PUPPET_MASTER_URL;
@@ -42,7 +42,7 @@ function _pm_url($options = array(), $url = '')
  * @param  array options to effect the HTML output
  * @return string link
  */
-function _pm_link($url, $caption = "", $options = "")
+function _pm_link($url, $caption='', $options='')
 {
 	if (is_array($options) &&
 		!empty($options)) {
@@ -103,7 +103,7 @@ function _pm_get_all_puppets($ownerid)
 {
 	global $db;
 
-	$query = $db->simple_select('puppets', '*', "ownerid='{$ownerid}'", array("order_by" => 'disp_order', "order_dir" => 'ASC'));
+	$query = $db->simple_select('puppets', '*', "ownerid='{$ownerid}'", array('order_by' => 'disp_order', 'order_dir' => 'ASC'));
 
 	if ($db->num_rows($query) > 0) {
 		$puppets = array();
