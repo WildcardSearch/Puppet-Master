@@ -127,7 +127,7 @@ function puppet_master_install()
  */
 function puppet_master_activate()
 {
-	global $templates;
+	global $templates, $puppetMasterOldVersion;
 
 	// change the permissions to on by default
 	change_admin_permission('config', 'puppet_master');
@@ -143,42 +143,10 @@ function puppet_master_activate()
 	find_replace_templatesets('private_send', "#</table>(.*?)</form>#is", '{$puppet_options}</table>$1</form>');
 
 	// if we just upgraded . . .
-	$old_version = puppet_master_get_cache_version();
-	$info = puppet_master_info();
-	if ($old_version &&
-		version_compare($old_version, $info['version'], '<')) {
-		puppet_master_install();
-
-		if (version_compare($old_version, '2.1', '<')) {
-			$removedFiles = array(
-				'inc/classes/installer.php',
-				'inc/classes/malleable.php',
-				'inc/classes/storable.php',
-				'inc/classes/html_generator.php',
-			);
-
-			foreach ($removedFiles as $file) {
-				@unlink(MYBB_ROOT . $file);
-			}
-
-			@my_rmdir_recursive(MYBB_ROOT . 'inc/plugins/puppet_master/images');
-			@rmdir(MYBB_ROOT . 'inc/plugins/puppet_master/images');
-		}
-
-		if (version_compare($old_version, '2.1.1', '<')) {
-			$removedFiles = array(
-				'inc/classes/acp.php',
-				'inc/classes/puppet_master.php',
-				'inc/classes/HTMLGenerator.php',
-				'inc/classes/MalleableObject.php',
-				'inc/classes/StorableObject.php',
-				'inc/classes/WildcardPluginInstaller.php',
-			);
-
-			foreach ($removedFiles as $file) {
-				@unlink(MYBB_ROOT . $file);
-			}
-		}
+	$puppetMasterOldVersion = puppet_master_get_cache_version();
+	if ($puppetMasterOldVersion &&
+		version_compare($puppetMasterOldVersion, PUPPET_MASTER_VERSION, '<')) {
+		require_once MYBB_ROOT.'inc/plugins/puppet_master/upgrade.php';
 	}
 
 	puppet_master_set_cache_version();
