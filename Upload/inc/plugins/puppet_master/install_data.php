@@ -30,7 +30,7 @@ $tables = array (
 
 $columns = array (
 	'pgsql' => array(
-		.users. => array(
+		'users' => array(
 			'puppet_master' => 'INT DEFAULT 0',
 			'post_hidden' => 'INT DEFAULT 0',
 		),
