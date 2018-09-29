@@ -4,7 +4,7 @@
  * plugin specific extension
  */
 
-class PuppetMasterInstaller extends WildcardPluginInstaller010202
+class PuppetMasterInstaller extends WildcardPluginInstaller020000
 {
 	static public function getInstance()
 	{
