@@ -1,4 +1,4 @@
-## Puppet Master 2.1.2
+## Puppet Master 2.1.3
 for MyBB 1.8.x
 
 <p align="center">
