@@ -1,6 +1,6 @@
 <?php
 /*
- * Plug-in Name: Puppet Master for MyBB 1.6.x
+ * Plug-in Name: Puppet Master for MyBB 1.8.x
  * Copyright 2013 WildcardSearch
  * http://www.rantcentralforums.com
  *
