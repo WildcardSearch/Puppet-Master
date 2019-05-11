@@ -52,7 +52,6 @@ $settings = array(
 		),
 		'settings' => array(
 			'puppet_master_on' => array(
-				'sid' => 'NULL',
 				'name' => 'puppet_master_on',
 				'title' => $lang->puppet_master_on_title,
 				'description' => $lang->puppet_master_on_desc,
