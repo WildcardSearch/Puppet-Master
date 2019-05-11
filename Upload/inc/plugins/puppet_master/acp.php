@@ -377,7 +377,7 @@ function puppet_master_admin_edit()
 	$form_container = new FormContainer($lang->sprintf($lang->puppet_master_add_puppet_for, $puppet_master->get('username')));
 
 	$form_container->output_row($lang->puppet_master_puppet_username, '', $form->generate_text_box('username', '', array('id' => 'username')));
-	$form_container->output_row($lang->puppet_master_display_order, '', $form->generate_text_box('disp_order', count($puppets) * 10 + 10).$form->generate_hidden_field('ownerid', $uid));
+	$form_container->output_row($lang->puppet_master_display_order, '', $form->generate_text_box('disp_order', count((array) $puppets) * 10 + 10).$form->generate_hidden_field('ownerid', $uid));
 	$form_container->end();
 
 	// Autocompletion for usernames
